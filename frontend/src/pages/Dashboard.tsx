@@ -1,24 +1,30 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
-import { usePosts } from '@/hooks/usePosts';
-import { Post } from '@/types';
-import { Plus, Edit, Trash2, LogOut, User } from 'lucide-react';
+import { useCart } from '@/hooks/useCart';
+import { useFavorites } from '@/hooks/useFavorites';
+import { useRoutines } from '@/hooks/useRoutines';
+import { useRecommendations } from '@/hooks/useRecommendations';
+import { 
+  LogOut, 
+  User, 
+  ShoppingBag, 
+  Heart, 
+  Calendar, 
+  Star,
+  MessageSquare,
+  Settings,
+  ShoppingCart
+} from 'lucide-react';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
-  const { posts, loading, createPost, updatePost, deletePost } = usePosts();
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [editingPost, setEditingPost] = useState<Post | null>(null);
-  const [formData, setFormData] = useState({
-    title: '',
-    content: '',
-    published: false,
-  });
+  const { getCartItemCount } = useCart();
+  const { favorites } = useFavorites();
+  const { routines } = useRoutines();
+  const { recommendations } = useRecommendations();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -30,50 +36,15 @@ const Dashboard = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.title) return;
-
-    try {
-      if (editingPost) {
-        await updatePost(editingPost.id, formData);
-        setEditingPost(null);
-      } else {
-        await createPost(formData);
-        setShowCreateForm(false);
-      }
-      setFormData({ title: '', content: '', published: false });
-    } catch (error) {
-      // Error handled in hooks
-    }
-  };
-
-  const handleEdit = (post: Post) => {
-    setEditingPost(post);
-    setFormData({
-      title: post.title,
-      content: post.content || '',
-      published: post.published,
-    });
-    setShowCreateForm(true);
-  };
-
-  const handleCancelEdit = () => {
-    setEditingPost(null);
-    setShowCreateForm(false);
-    setFormData({ title: '', content: '', published: false });
-  };
-
-  const userPosts = posts.filter(post => post.authorId === user?.id);
-
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+              <h1 className="text-3xl font-bold text-green-600">🌸 Florecer</h1>
+              <span className="ml-4 text-gray-600">Tu plataforma de bienestar personal</span>
             </div>
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2 text-gray-600">
@@ -82,7 +53,7 @@ const Dashboard = () => {
               </div>
               <Button variant="outline" onClick={handleLogout}>
                 <LogOut className="h-4 w-4 mr-2" />
-                Logout
+                Cerrar Sesión
               </Button>
             </div>
           </div>
@@ -90,145 +61,242 @@ const Dashboard = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Create Post Section */}
+        {/* Welcome Section */}
         <div className="mb-8">
-          {!showCreateForm ? (
-            <Button onClick={() => setShowCreateForm(true)} className="mb-6">
-              <Plus className="h-4 w-4 mr-2" />
-              Create New Post
-            </Button>
-          ) : (
-            <Card className="mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            ¡Bienvenido de vuelta, {user?.username}! 🌟
+          </h2>
+          <p className="text-gray-600">
+            Tu viaje hacia el bienestar personal continúa. Explora productos, gestiona tus rutinas y descubre nuevas recomendaciones.
+          </p>
+        </div>
+
+        {/* Quick Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <Card className="bg-gradient-to-r from-pink-500 to-pink-600 text-white">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-pink-100">Favoritos</p>
+                  <p className="text-2xl font-bold">{favorites.length}</p>
+                </div>
+                <Heart className="h-8 w-8 text-pink-200" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-blue-100">Carrito</p>
+                  <p className="text-2xl font-bold">{getCartItemCount()}</p>
+                </div>
+                <ShoppingCart className="h-8 w-8 text-blue-200" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-green-100">Rutinas</p>
+                  <p className="text-2xl font-bold">{routines.length}</p>
+                </div>
+                <Calendar className="h-8 w-8 text-green-200" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-purple-100">Recomendaciones</p>
+                  <p className="text-2xl font-bold">{recommendations.length}</p>
+                </div>
+                <Star className="h-8 w-8 text-purple-200" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <Link to="/products">
               <CardHeader>
-                <CardTitle>{editingPost ? 'Edit Post' : 'Create New Post'}</CardTitle>
+                <CardTitle className="flex items-center">
+                  <ShoppingBag className="h-5 w-5 mr-2 text-green-600" />
+                  Explorar Productos
+                </CardTitle>
+                <CardDescription>
+                  Descubre productos de belleza, nutrición y cuidado personal
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="title">Title</Label>
-                    <Input
-                      id="title"
-                      value={formData.title}
-                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="content">Content</Label>
-                    <textarea
-                      id="content"
-                      className="w-full min-h-[100px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                      value={formData.content}
-                      onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                    />
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="published"
-                      checked={formData.published}
-                      onChange={(e) => setFormData({ ...formData, published: e.target.checked })}
-                    />
-                    <Label htmlFor="published">Published</Label>
-                  </div>
-                  <div className="flex space-x-2">
-                    <Button type="submit">
-                      {editingPost ? 'Update Post' : 'Create Post'}
-                    </Button>
-                    <Button type="button" variant="outline" onClick={handleCancelEdit}>
-                      Cancel
-                    </Button>
-                  </div>
-                </form>
+                <p className="text-sm text-gray-600">
+                  Navega por nuestro catálogo de productos naturales y orgánicos para tu bienestar.
+                </p>
               </CardContent>
-            </Card>
-          )}
+            </Link>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <Link to="/cart">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <ShoppingCart className="h-5 w-5 mr-2 text-blue-600" />
+                  Mi Carrito
+                </CardTitle>
+                <CardDescription>
+                  Gestiona tus productos seleccionados
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-gray-600">
+                  {getCartItemCount() > 0 
+                    ? `Tienes ${getCartItemCount()} productos en tu carrito.`
+                    : 'Tu carrito está vacío. ¡Agrega algunos productos!'
+                  }
+                </p>
+              </CardContent>
+            </Link>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <Link to="/routines">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Calendar className="h-5 w-5 mr-2 text-purple-600" />
+                  Mis Rutinas
+                </CardTitle>
+                <CardDescription>
+                  Crea y gestiona tus rutinas de cuidado
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-gray-600">
+                  {routines.length > 0 
+                    ? `Tienes ${routines.length} rutinas creadas.`
+                    : 'Crea tu primera rutina de cuidado personal.'
+                  }
+                </p>
+              </CardContent>
+            </Link>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <Link to="/favorites">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Heart className="h-5 w-5 mr-2 text-pink-600" />
+                  Mis Favoritos
+                </CardTitle>
+                <CardDescription>
+                  Accede a tus productos favoritos
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-gray-600">
+                  {favorites.length > 0 
+                    ? `Tienes ${favorites.length} productos marcados como favoritos.`
+                    : 'Marca productos como favoritos para acceso rápido.'
+                  }
+                </p>
+              </CardContent>
+            </Link>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <Link to="/community">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <MessageSquare className="h-5 w-5 mr-2 text-orange-600" />
+                  Comunidad
+                </CardTitle>
+                <CardDescription>
+                  Comparte experiencias y consejos
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-gray-600">
+                  Conecta con otros usuarios y comparte tu viaje de bienestar.
+                </p>
+              </CardContent>
+            </Link>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <Link to="/admin">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Settings className="h-5 w-5 mr-2 text-gray-600" />
+                  Panel Admin
+                </CardTitle>
+                <CardDescription>
+                  Gestionar recomendaciones (Admin)
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-gray-600">
+                  Acceso al panel de administración para enviar recomendaciones.
+                </p>
+              </CardContent>
+            </Link>
+          </Card>
         </div>
 
-        {/* Posts Section */}
-        <div className="grid gap-6">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold text-gray-900">Your Posts</h2>
-            <span className="text-sm text-gray-500">{userPosts.length} posts</span>
-          </div>
-
-          {loading ? (
-            <div className="text-center py-8">
-              <p className="text-gray-500">Loading posts...</p>
-            </div>
-          ) : userPosts.length === 0 ? (
-            <Card>
-              <CardContent className="text-center py-8">
-                <p className="text-gray-500 mb-4">You haven't created any posts yet.</p>
-                <Button onClick={() => setShowCreateForm(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Your First Post
-                </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="space-y-4">
-              {userPosts.map((post) => (
-                <Card key={post.id}>
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle className="text-lg">{post.title}</CardTitle>
-                        <CardDescription>
-                          {post.published ? 'Published' : 'Draft'} • Created on{' '}
-                          {new Date(post.createdAt).toLocaleDateString()}
-                        </CardDescription>
-                      </div>
-                      <div className="flex space-x-2">
-                        <Button size="sm" variant="outline" onClick={() => handleEdit(post)}>
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="destructive" 
-                          onClick={() => deletePost(post.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  {post.content && (
-                    <CardContent>
-                      <p className="text-gray-600 whitespace-pre-wrap">{post.content}</p>
-                    </CardContent>
-                  )}
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* All Posts Section */}
-        <div className="mt-12">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">All Posts</h2>
-          <div className="space-y-4">
-            {posts.map((post) => (
-              <Card key={post.id}>
-                <CardHeader>
-                  <div className="flex justify-between items-start">
+        {/* Recent Recommendations */}
+        {recommendations.length > 0 && (
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Star className="h-5 w-5 mr-2 text-yellow-500" />
+                Recomendaciones Recientes
+              </CardTitle>
+              <CardDescription>
+                Productos recomendados especialmente para ti
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {recommendations.slice(0, 3).map((rec) => (
+                  <div key={rec.id} className="flex items-center justify-between p-4 bg-yellow-50 rounded-lg">
                     <div>
-                      <CardTitle className="text-lg">{post.title}</CardTitle>
-                      <CardDescription>
-                        By {post.author.username} • {new Date(post.createdAt).toLocaleDateString()}
-                      </CardDescription>
+                      <h4 className="font-semibold">{rec.nombre}</h4>
+                      <p className="text-sm text-gray-600">Recomendado por {rec.admin_username}</p>
+                      {rec.mensaje && (
+                        <p className="text-sm text-gray-700 italic">"{rec.mensaje}"</p>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <span className="text-lg font-bold text-green-600">
+                        ${rec.precio.toFixed(2)}
+                      </span>
+                      <div className="mt-2">
+                        <Button size="sm">Ver Producto</Button>
+                      </div>
                     </div>
                   </div>
-                </CardHeader>
-                {post.content && (
-                  <CardContent>
-                    <p className="text-gray-600 whitespace-pre-wrap">{post.content}</p>
-                  </CardContent>
-                )}
-              </Card>
-            ))}
-          </div>
-        </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Motivational Message */}
+        <Card className="bg-gradient-to-r from-green-100 to-blue-100">
+          <CardContent className="p-6 text-center">
+            <h3 className="text-xl font-semibold text-gray-800 mb-2">
+              ¡Tu bienestar es nuestra prioridad! 🌟
+            </h3>
+            <p className="text-gray-600">
+              Cada pequeño paso hacia el cuidado personal es un gran avance. Continúa explorando, aprendiendo y floreciendo.
+            </p>
+          </CardContent>
+        </Card>
       </main>
     </div>
   );

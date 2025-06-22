@@ -127,6 +127,30 @@ const Dashboard = () => {
             </CardHeader>
           </Card>
 
+          <Card className="border-purple-100 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/cart')}>
+            <CardHeader>
+              <CardTitle className="flex items-center text-purple-900">
+                <ShoppingCart className="h-5 w-5 mr-2" />
+                Mi Carrito
+              </CardTitle>
+              <CardDescription>
+                Revisa y gestiona los productos en tu carrito
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card className="border-purple-100 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/favorites')}>
+            <CardHeader>
+              <CardTitle className="flex items-center text-purple-900">
+                <Heart className="h-5 w-5 mr-2" />
+                Mis Favoritos
+              </CardTitle>
+              <CardDescription>
+                Accede rápidamente a tus productos favoritos
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
           <Card className="border-purple-100 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/routines')}>
             <CardHeader>
               <CardTitle className="flex items-center text-purple-900">

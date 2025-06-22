@@ -1,24 +1,19 @@
-import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
-import { usePosts } from '@/hooks/usePosts';
-import { Post } from '@/types';
-import { Plus, Edit, Trash2, LogOut, User } from 'lucide-react';
+import { useCart } from '@/hooks/useCart';
+import { useFavorites } from '@/hooks/useFavorites';
+import { useRoutines } from '@/hooks/useRoutines';
+import { useRecommendations } from '@/hooks/useRecommendations';
+import { LogOut, User, ShoppingCart, Heart, Sparkles, MessageSquare, Leaf } from 'lucide-react';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
-  const { posts, loading, createPost, updatePost, deletePost } = usePosts();
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [editingPost, setEditingPost] = useState<Post | null>(null);
-  const [formData, setFormData] = useState({
-    title: '',
-    content: '',
-    published: false,
-  });
+  const { cart, items } = useCart();
+  const { favorites } = useFavorites();
+  const { routines } = useRoutines();
+  const { recommendations } = useRecommendations();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -30,59 +25,28 @@ const Dashboard = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.title) return;
-
-    try {
-      if (editingPost) {
-        await updatePost(editingPost.id, formData);
-        setEditingPost(null);
-      } else {
-        await createPost(formData);
-        setShowCreateForm(false);
-      }
-      setFormData({ title: '', content: '', published: false });
-    } catch (error) {
-      // Error handled in hooks
-    }
-  };
-
-  const handleEdit = (post: Post) => {
-    setEditingPost(post);
-    setFormData({
-      title: post.title,
-      content: post.content || '',
-      published: post.published,
-    });
-    setShowCreateForm(true);
-  };
-
-  const handleCancelEdit = () => {
-    setEditingPost(null);
-    setShowCreateForm(false);
-    setFormData({ title: '', content: '', published: false });
-  };
-
-  const userPosts = posts.filter(post => post.authorId === user?.id);
+  const unreadRecommendations = recommendations.filter(r => !r.leida);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50">
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-white shadow-sm border-b border-purple-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+              <Leaf className="h-8 w-8 text-purple-600 mr-2" />
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                Panel Florecer
+              </h1>
             </div>
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2 text-gray-600">
+              <div className="flex items-center space-x-2 text-purple-700">
                 <User className="h-5 w-5" />
-                <span>{user?.username}</span>
+                <span className="font-medium">{user?.username}</span>
               </div>
-              <Button variant="outline" onClick={handleLogout}>
+              <Button variant="outline" onClick={handleLogout} className="border-purple-200 text-purple-700 hover:bg-purple-50">
                 <LogOut className="h-4 w-4 mr-2" />
-                Logout
+                Cerrar Sesión
               </Button>
             </div>
           </div>
@@ -90,144 +54,190 @@ const Dashboard = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Create Post Section */}
-        <div className="mb-8">
-          {!showCreateForm ? (
-            <Button onClick={() => setShowCreateForm(true)} className="mb-6">
-              <Plus className="h-4 w-4 mr-2" />
-              Create New Post
-            </Button>
-          ) : (
-            <Card className="mb-6">
-              <CardHeader>
-                <CardTitle>{editingPost ? 'Edit Post' : 'Create New Post'}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="title">Title</Label>
-                    <Input
-                      id="title"
-                      value={formData.title}
-                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="content">Content</Label>
-                    <textarea
-                      id="content"
-                      className="w-full min-h-[100px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                      value={formData.content}
-                      onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                    />
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="published"
-                      checked={formData.published}
-                      onChange={(e) => setFormData({ ...formData, published: e.target.checked })}
-                    />
-                    <Label htmlFor="published">Published</Label>
-                  </div>
-                  <div className="flex space-x-2">
-                    <Button type="submit">
-                      {editingPost ? 'Update Post' : 'Create Post'}
-                    </Button>
-                    <Button type="button" variant="outline" onClick={handleCancelEdit}>
-                      Cancel
-                    </Button>
-                  </div>
-                </form>
-              </CardContent>
-            </Card>
-          )}
+        {/* Welcome Section */}
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold text-purple-900 mb-2">
+            ¡Bienvenida de vuelta, {user?.username}!
+          </h2>
+          <p className="text-lg text-gray-600">
+            Continúa tu jornada de bienestar y belleza
+          </p>
         </div>
 
-        {/* Posts Section */}
-        <div className="grid gap-6">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold text-gray-900">Your Posts</h2>
-            <span className="text-sm text-gray-500">{userPosts.length} posts</span>
-          </div>
+        {/* Quick Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <Card className="border-purple-100 hover:shadow-lg transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-purple-700">Mi Carrito</CardTitle>
+              <ShoppingCart className="h-4 w-4 text-purple-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-purple-900">{items.length}</div>
+              <p className="text-xs text-gray-600">
+                Total: ${cart?.total?.toFixed(2) || '0.00'}
+              </p>
+            </CardContent>
+          </Card>
 
-          {loading ? (
-            <div className="text-center py-8">
-              <p className="text-gray-500">Loading posts...</p>
-            </div>
-          ) : userPosts.length === 0 ? (
-            <Card>
-              <CardContent className="text-center py-8">
-                <p className="text-gray-500 mb-4">You haven't created any posts yet.</p>
-                <Button onClick={() => setShowCreateForm(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Your First Post
-                </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="space-y-4">
-              {userPosts.map((post) => (
-                <Card key={post.id}>
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle className="text-lg">{post.title}</CardTitle>
-                        <CardDescription>
-                          {post.published ? 'Published' : 'Draft'} • Created on{' '}
-                          {new Date(post.createdAt).toLocaleDateString()}
-                        </CardDescription>
-                      </div>
-                      <div className="flex space-x-2">
-                        <Button size="sm" variant="outline" onClick={() => handleEdit(post)}>
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="destructive" 
-                          onClick={() => deletePost(post.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  {post.content && (
-                    <CardContent>
-                      <p className="text-gray-600 whitespace-pre-wrap">{post.content}</p>
-                    </CardContent>
-                  )}
-                </Card>
-              ))}
-            </div>
-          )}
+          <Card className="border-purple-100 hover:shadow-lg transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-purple-700">Favoritos</CardTitle>
+              <Heart className="h-4 w-4 text-pink-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-purple-900">{favorites.length}</div>
+              <p className="text-xs text-gray-600">productos guardados</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-purple-100 hover:shadow-lg transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-purple-700">Rutinas</CardTitle>
+              <Sparkles className="h-4 w-4 text-indigo-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-purple-900">{routines.length}</div>
+              <p className="text-xs text-gray-600">rutinas creadas</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-purple-100 hover:shadow-lg transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-purple-700">Recomendaciones</CardTitle>
+              <MessageSquare className="h-4 w-4 text-green-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-purple-900">{unreadRecommendations.length}</div>
+              <p className="text-xs text-gray-600">nuevas recomendaciones</p>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* All Posts Section */}
-        <div className="mt-12">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">All Posts</h2>
-          <div className="space-y-4">
-            {posts.map((post) => (
-              <Card key={post.id}>
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="text-lg">{post.title}</CardTitle>
-                      <CardDescription>
-                        By {post.author.username} • {new Date(post.createdAt).toLocaleDateString()}
-                      </CardDescription>
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <Card className="border-purple-100 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/products')}>
+            <CardHeader>
+              <CardTitle className="flex items-center text-purple-900">
+                <ShoppingCart className="h-5 w-5 mr-2" />
+                Explorar Productos
+              </CardTitle>
+              <CardDescription>
+                Descubre productos nuevos y agrega a tu carrito
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card className="border-purple-100 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/cart')}>
+            <CardHeader>
+              <CardTitle className="flex items-center text-purple-900">
+                <ShoppingCart className="h-5 w-5 mr-2" />
+                Mi Carrito
+              </CardTitle>
+              <CardDescription>
+                Revisa y gestiona los productos en tu carrito
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card className="border-purple-100 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/favorites')}>
+            <CardHeader>
+              <CardTitle className="flex items-center text-purple-900">
+                <Heart className="h-5 w-5 mr-2" />
+                Mis Favoritos
+              </CardTitle>
+              <CardDescription>
+                Accede rápidamente a tus productos favoritos
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card className="border-purple-100 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/routines')}>
+            <CardHeader>
+              <CardTitle className="flex items-center text-purple-900">
+                <Sparkles className="h-5 w-5 mr-2" />
+                Mis Rutinas
+              </CardTitle>
+              <CardDescription>
+                Gestiona tus rutinas de cuidado personal
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card className="border-purple-100 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/community')}>
+            <CardHeader>
+              <CardTitle className="flex items-center text-purple-900">
+                <MessageSquare className="h-5 w-5 mr-2" />
+                Comunidad
+              </CardTitle>
+              <CardDescription>
+                Comparte experiencias con otros usuarios
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </div>
+
+        {/* Recent Activity */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Recent Recommendations */}
+          <Card className="border-purple-100">
+            <CardHeader>
+              <CardTitle className="text-purple-900">Recomendaciones Recientes</CardTitle>
+              <CardDescription>Productos recomendados especialmente para ti</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {unreadRecommendations.length === 0 ? (
+                <p className="text-gray-500 text-center py-4">No tienes recomendaciones nuevas</p>
+              ) : (
+                <div className="space-y-3">
+                  {unreadRecommendations.slice(0, 3).map((rec) => (
+                    <div key={rec.id} className="flex items-center space-x-3 p-3 bg-purple-50 rounded-lg">
+                      <img
+                        src={rec.imagen_url || 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=100&h=100&fit=crop'}
+                        alt={rec.nombre}
+                        className="w-12 h-12 rounded-lg object-cover"
+                      />
+                      <div className="flex-1">
+                        <h4 className="font-medium text-purple-900">{rec.nombre}</h4>
+                        <p className="text-sm text-gray-600">Por {rec.admin_username}</p>
+                        {rec.mensaje && (
+                          <p className="text-sm text-purple-700 italic">"{rec.mensaje}"</p>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </CardHeader>
-                {post.content && (
-                  <CardContent>
-                    <p className="text-gray-600 whitespace-pre-wrap">{post.content}</p>
-                  </CardContent>
-                )}
-              </Card>
-            ))}
-          </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Recent Favorites */}
+          <Card className="border-purple-100">
+            <CardHeader>
+              <CardTitle className="text-purple-900">Favoritos Recientes</CardTitle>
+              <CardDescription>Tus productos favoritos más recientes</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {favorites.length === 0 ? (
+                <p className="text-gray-500 text-center py-4">Aún no tienes productos favoritos</p>
+              ) : (
+                <div className="space-y-3">
+                  {favorites.slice(0, 3).map((fav) => (
+                    <div key={fav.id} className="flex items-center space-x-3 p-3 bg-pink-50 rounded-lg">
+                      <img
+                        src={fav.imagen_url || 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=100&h=100&fit=crop'}
+                        alt={fav.nombre}
+                        className="w-12 h-12 rounded-lg object-cover"
+                      />
+                      <div className="flex-1">
+                        <h4 className="font-medium text-purple-900">{fav.nombre}</h4>
+                        <p className="text-sm text-purple-600 font-semibold">${fav.precio}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </main>
     </div>

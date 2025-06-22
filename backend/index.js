@@ -13,12 +13,12 @@ const favoriteRoutes = require("./routes/favorites");
 const recommendationRoutes = require("./routes/recommendations");
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 // Middleware
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: ["http://localhost:3000", "http://localhost:3001"],
     credentials: true,
   })
 );

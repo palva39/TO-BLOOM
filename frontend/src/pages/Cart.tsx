@@ -1,14 +1,12 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useCart } from '@/hooks/useCart';
 import { ShoppingCart, Minus, Plus, Trash2, ArrowLeft } from 'lucide-react';
 
 const Cart = () => {
   const { 
-    cart, 
     items, 
     loading, 
     updateItemQuantity, 

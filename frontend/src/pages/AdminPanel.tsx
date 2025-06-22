@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,7 +7,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useRecommendations } from '@/hooks/useRecommendations';
 import { useProducts } from '@/hooks/useProducts';
 import { Plus, Send, Users, ArrowLeft } from 'lucide-react';
-import api from '@/lib/api';
 import { toast } from 'sonner';
 
 interface User {

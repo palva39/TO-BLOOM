@@ -39,6 +39,11 @@ app.get("/api/health", (req, res) => {
   res.json({ message: "Backend is running!" });
 });
 
+// Root route for GET /
+app.get("/", (req, res) => {
+  res.json({ message: "Welcome to the Florecer API" });
+});
+
 // Global error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);

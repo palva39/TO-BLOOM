@@ -15,18 +15,15 @@ async function seedData() {
     const adminPassword = await bcrypt.hash("admin123", 10);
 
     // Check if admin already exists
-    const existingAdmin = db.user.findUnique({
+    const existingAdmin = await db.user.findUnique({
       where: { email: "admin@florecer.com" },
     });
 
     if (!existingAdmin) {
-      const now = new Date().toISOString();
-      db.user.create({
+      await db.user.create({
         email: "admin@florecer.com",
         username: "admin",
         password: adminPassword,
-        createdAt: now,
-        updatedAt: now,
       });
 
       // Update user role to admin

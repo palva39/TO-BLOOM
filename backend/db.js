@@ -1,9 +1,9 @@
-const Database = require('better-sqlite3');
-const bcrypt = require('bcryptjs');
-const path = require('path');
+const Database = require("better-sqlite3");
+const bcrypt = require("bcryptjs");
+const path = require("path");
 
 // Simple SQLite database initialization
-const db = new Database(path.join(__dirname, 'prisma', 'dev.db'));
+const db = new Database(path.join(__dirname, "prisma", "dev.db"));
 
 // Create tables
 db.exec(`
@@ -99,8 +99,8 @@ db.exec(`
 
 // Simple ORM-like interface
 const createUser = db.prepare(`
-  INSERT INTO User (email, username, password) 
-  VALUES (?, ?, ?)
+  INSERT INTO User (email, username, password, createdAt, updatedAt)
+  VALUES (?, ?, ?, ?, ?)
 `);
 
 const findUserByEmail = db.prepare(`
@@ -269,7 +269,14 @@ const markRecommendationAsRead = db.prepare(`
 module.exports = {
   user: {
     create: (data) => {
-      const result = createUser.run(data.email, data.username, data.password);
+      const now = new Date().toISOString();
+      const result = createUser.run(
+        data.email,
+        data.username,
+        data.password,
+        now,
+        now
+      );
       return { id: result.lastInsertRowid, ...data };
     },
     findUnique: ({ where }) => {
@@ -285,17 +292,25 @@ module.exports = {
             if (user) return user;
           }
           if (condition.username) {
-            const user = db.prepare('SELECT * FROM User WHERE username = ?').get(condition.username);
+            const user = db
+              .prepare("SELECT * FROM User WHERE username = ?")
+              .get(condition.username);
             if (user) return user;
           }
         }
       }
       return null;
-    }
+    },
   },
   product: {
     create: ({ data }) => {
-      const result = createProduct.run(data.nombre, data.descripcion, data.precio, data.imagen_url || null, data.categoria || null);
+      const result = createProduct.run(
+        data.nombre,
+        data.descripcion,
+        data.precio,
+        data.imagen_url || null,
+        data.categoria || null
+      );
       return { id: result.lastInsertRowid, ...data };
     },
     findMany: ({ where }) => {
@@ -307,20 +322,27 @@ module.exports = {
     update: ({ where, data }) => {
       const current = findProductById.get(where.id);
       if (!current) return null;
-      
+
       const nombre = data.nombre ?? current.nombre;
       const descripcion = data.descripcion ?? current.descripcion;
       const precio = data.precio ?? current.precio;
       const imagen_url = data.imagen_url ?? current.imagen_url;
       const categoria = data.categoria ?? current.categoria;
-      
-      updateProduct.run(nombre, descripcion, precio, imagen_url, categoria, where.id);
+
+      updateProduct.run(
+        nombre,
+        descripcion,
+        precio,
+        imagen_url,
+        categoria,
+        where.id
+      );
       return { ...current, ...data };
     },
     delete: ({ where }) => {
       deleteProduct.run(where.id);
       return {};
-    }
+    },
   },
   cart: {
     findOrCreate: ({ userId }) => {
@@ -359,18 +381,23 @@ module.exports = {
     clear: ({ cartId }) => {
       clearCart.run(cartId);
       return {};
-    }
+    },
   },
   routine: {
     create: ({ data }) => {
-      const result = createRoutine.run(data.usuario_id, data.nombre, data.tipo || null, JSON.stringify(data.pasos || []));
+      const result = createRoutine.run(
+        data.usuario_id,
+        data.nombre,
+        data.tipo || null,
+        JSON.stringify(data.pasos || [])
+      );
       return { id: result.lastInsertRowid, ...data };
     },
     findMany: ({ where }) => {
       const routines = findRoutinesByUserId.all(where.usuario_id);
-      return routines.map(routine => ({
+      return routines.map((routine) => ({
         ...routine,
-        pasos: JSON.parse(routine.pasos || '[]')
+        pasos: JSON.parse(routine.pasos || "[]"),
       }));
     },
     findUnique: ({ where }) => {
@@ -378,24 +405,24 @@ module.exports = {
       if (!routine) return null;
       return {
         ...routine,
-        pasos: JSON.parse(routine.pasos || '[]')
+        pasos: JSON.parse(routine.pasos || "[]"),
       };
     },
     update: ({ where, data }) => {
       const current = findRoutineById.get(where.id);
       if (!current) return null;
-      
+
       const nombre = data.nombre ?? current.nombre;
       const tipo = data.tipo ?? current.tipo;
       const pasos = data.pasos ? JSON.stringify(data.pasos) : current.pasos;
-      
+
       updateRoutine.run(nombre, tipo, pasos, where.id);
       return { ...current, ...data };
     },
     delete: ({ where }) => {
       deleteRoutine.run(where.id);
       return {};
-    }
+    },
   },
   favorite: {
     add: ({ userId, productId }) => {
@@ -411,11 +438,16 @@ module.exports = {
     },
     check: ({ userId, productId }) => {
       return checkFavorite.get(userId, productId);
-    }
+    },
   },
   recommendation: {
     create: ({ data }) => {
-      const result = createRecommendation.run(data.admin_id, data.usuario_id, data.producto_id, data.mensaje || null);
+      const result = createRecommendation.run(
+        data.admin_id,
+        data.usuario_id,
+        data.producto_id,
+        data.mensaje || null
+      );
       return { id: result.lastInsertRowid, ...data };
     },
     findMany: ({ where }) => {
@@ -424,11 +456,16 @@ module.exports = {
     markAsRead: ({ id }) => {
       markRecommendationAsRead.run(id);
       return {};
-    }
+    },
   },
   post: {
     create: ({ data, include }) => {
-      const result = createPost.run(data.title, data.content, data.published ? 1 : 0, data.authorId);
+      const result = createPost.run(
+        data.title,
+        data.content,
+        data.published ? 1 : 0,
+        data.authorId
+      );
       const post = findPostById.get(result.lastInsertRowid);
       return {
         id: result.lastInsertRowid,
@@ -441,13 +478,13 @@ module.exports = {
         author: {
           id: post.authorId,
           username: post.username,
-          email: post.email
-        }
+          email: post.email,
+        },
       };
     },
     findMany: ({ include, orderBy }) => {
       const posts = findAllPosts.all();
-      return posts.map(post => ({
+      return posts.map((post) => ({
         id: post.id,
         title: post.title,
         content: post.content,
@@ -458,8 +495,8 @@ module.exports = {
         author: {
           id: post.authorId,
           username: post.username,
-          email: post.email
-        }
+          email: post.email,
+        },
       }));
     },
     findUnique: ({ where, include }) => {
@@ -476,20 +513,26 @@ module.exports = {
         author: {
           id: post.authorId,
           username: post.username,
-          email: post.email
-        }
+          email: post.email,
+        },
       };
     },
     update: ({ where, data, include }) => {
       const current = findPostById.get(where.id);
       if (!current) return null;
-      
+
       const title = data.title ?? current.title;
-      const content = data.content !== undefined ? data.content : current.content;
-      const published = data.published !== undefined ? (data.published ? 1 : 0) : current.published;
-      
+      const content =
+        data.content !== undefined ? data.content : current.content;
+      const published =
+        data.published !== undefined
+          ? data.published
+            ? 1
+            : 0
+          : current.published;
+
       updatePost.run(title, content, published, where.id);
-      
+
       return {
         id: current.id,
         title,
@@ -501,16 +544,16 @@ module.exports = {
         author: {
           id: current.authorId,
           username: current.username,
-          email: current.email
-        }
+          email: current.email,
+        },
       };
     },
     delete: ({ where }) => {
       deletePost.run(where.id);
       return {};
-    }
+    },
   },
   $disconnect: () => {
     db.close();
-  }
+  },
 };

@@ -1,26 +1,38 @@
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { useProducts } from '@/hooks/useProducts';
-import { useCart } from '@/hooks/useCart';
-import { useFavorites } from '@/hooks/useFavorites';
-import { ShoppingCart, Heart, Search } from 'lucide-react';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { useProducts } from "@/hooks/useProducts";
+import { useCart } from "@/hooks/useCart";
+import { useFavorites } from "@/hooks/useFavorites";
+import { ShoppingCart, Heart, Search } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Products = () => {
   const { products, loading } = useProducts();
   const { addToCart } = useCart();
   const { addToFavorites, removeFromFavorites, checkFavorite } = useFavorites();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const navigate = useNavigate();
 
-  const categories = [...new Set(products.map(p => p.categoria).filter(Boolean))];
-  
-  const filteredProducts = products.filter(product => {
-    const matchesSearch = product.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.descripcion?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !selectedCategory || product.categoria === selectedCategory;
+  const categories = [
+    ...new Set(products.map((p) => p.categoria).filter(Boolean)),
+  ];
+
+  const filteredProducts = products.filter((product) => {
+    const matchesSearch =
+      product.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.descripcion?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      !selectedCategory || product.categoria === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
@@ -65,9 +77,19 @@ const Products = () => {
             Nuestros Productos
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Descubre nuestra selección curada de productos de belleza y cuidado personal
+            Descubre nuestra selección curada de productos de belleza y cuidado
+            personal
           </p>
         </div>
+
+        {/* Back to Dashboard Button */}
+        <Button
+          variant="outline"
+          onClick={() => navigate("/dashboard")}
+          className="mb-6 border-2 border-pink-200 text-pink-700 bg-pink-50 hover:bg-pink-100 hover:border-pink-300 shadow-sm rounded-full px-5 py-2 font-semibold transition-all duration-200 flex items-center gap-2"
+        >
+          ← Volver al Dashboard
+        </Button>
 
         {/* Search and Filters */}
         <div className="bg-white rounded-xl shadow-sm p-6 mb-8 border border-purple-100">
@@ -88,10 +110,13 @@ const Products = () => {
                 className="px-4 py-2 border border-purple-200 rounded-md focus:border-purple-500 focus:outline-none"
               >
                 <option value="">Todas las categorías</option>
-                {categories.map(category => (
+                {categories.map((category) => (
                   <option key={category} value={category}>
-                    {category === 'skincare' ? 'Cuidado de la piel' : 
-                     category === 'hair' ? 'Cuidado capilar' : category}
+                    {category === "skincare"
+                      ? "Cuidado de la piel"
+                      : category === "hair"
+                      ? "Cuidado capilar"
+                      : category}
                   </option>
                 ))}
               </select>
@@ -107,10 +132,16 @@ const Products = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredProducts.map((product) => (
-              <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-all border-purple-100 hover:border-purple-200">
+              <Card
+                key={product.id}
+                className="overflow-hidden hover:shadow-lg transition-all border-purple-100 hover:border-purple-200"
+              >
                 <div className="aspect-square relative overflow-hidden">
                   <img
-                    src={product.imagen_url || 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400&h=400&fit=crop'}
+                    src={
+                      product.imagen_url ||
+                      "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400&h=400&fit=crop"
+                    }
                     alt={product.nombre}
                     className="w-full h-full object-cover hover:scale-105 transition-transform"
                   />
@@ -128,14 +159,23 @@ const Products = () => {
                     <CardTitle className="text-lg text-purple-900 line-clamp-1">
                       {product.nombre}
                     </CardTitle>
-                    <Badge variant="secondary" className="bg-purple-100 text-purple-700">
+                    <Badge
+                      variant="secondary"
+                      className="bg-purple-100 text-purple-700"
+                    >
                       ${product.precio}
                     </Badge>
                   </div>
                   {product.categoria && (
-                    <Badge variant="outline" className="w-fit border-purple-200 text-purple-600">
-                      {product.categoria === 'skincare' ? 'Cuidado de la piel' : 
-                       product.categoria === 'hair' ? 'Cuidado capilar' : product.categoria}
+                    <Badge
+                      variant="outline"
+                      className="w-fit border-purple-200 text-purple-600"
+                    >
+                      {product.categoria === "skincare"
+                        ? "Cuidado de la piel"
+                        : product.categoria === "hair"
+                        ? "Cuidado capilar"
+                        : product.categoria}
                     </Badge>
                   )}
                 </CardHeader>
@@ -143,7 +183,7 @@ const Products = () => {
                   <CardDescription className="line-clamp-2 text-gray-600 mb-4">
                     {product.descripcion}
                   </CardDescription>
-                  <Button 
+                  <Button
                     onClick={() => handleAddToCart(product.id)}
                     className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
                   >

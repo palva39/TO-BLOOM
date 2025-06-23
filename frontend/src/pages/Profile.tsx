@@ -86,7 +86,7 @@ export default function Profile() {
       </h1>
       <div className="flex flex-col items-center mb-6">
         <img
-          src={avatar || "/default-female-avatar.png"}
+          src={avatar || "/avatar.jpg"}
           alt="avatar"
           className="w-24 h-24 rounded-full object-cover border-4 border-pink-200 shadow mb-2"
         />

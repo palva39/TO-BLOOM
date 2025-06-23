@@ -1,15 +1,21 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useAuth } from '@/hooks/useAuth';
-import { Leaf } from 'lucide-react';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { useAuth } from "@/hooks/useAuth";
+import { Leaf } from "lucide-react";
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -20,8 +26,8 @@ const Login = () => {
 
     setLoading(true);
     try {
-      await login(email, password);
-      navigate('/dashboard');
+      await login(email, password, navigate);
+      // No need to navigate here, handled in login
     } catch (error) {
       // Error is handled in the auth hook
     } finally {
@@ -53,7 +59,9 @@ const Login = () => {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-purple-700">Correo Electrónico</Label>
+                <Label htmlFor="email" className="text-purple-700">
+                  Correo Electrónico
+                </Label>
                 <Input
                   id="email"
                   type="email"
@@ -66,7 +74,9 @@ const Login = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-purple-700">Contraseña</Label>
+                <Label htmlFor="password" className="text-purple-700">
+                  Contraseña
+                </Label>
                 <Input
                   id="password"
                   type="password"
@@ -78,18 +88,21 @@ const Login = () => {
                   placeholder="••••••••"
                 />
               </div>
-              <Button 
-                type="submit" 
-                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700" 
+              <Button
+                type="submit"
+                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
                 disabled={loading}
               >
-                {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+                {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
               </Button>
             </form>
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
-                ¿No tienes una cuenta?{' '}
-                <Link to="/register" className="text-purple-600 hover:text-purple-700 font-medium hover:underline">
+                ¿No tienes una cuenta?{" "}
+                <Link
+                  to="/register"
+                  className="text-purple-600 hover:text-purple-700 font-medium hover:underline"
+                >
                   Regístrate aquí
                 </Link>
               </p>

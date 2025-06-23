@@ -1,13 +1,21 @@
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { useFavorites } from '@/hooks/useFavorites';
-import { useCart } from '@/hooks/useCart';
-import { Heart, ShoppingCart, HeartOff } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { useFavorites } from "@/hooks/useFavorites";
+import { useCart } from "@/hooks/useCart";
+import { Heart, ShoppingCart, HeartOff } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Favorites = () => {
   const { favorites, removeFromFavorites, loading } = useFavorites();
   const { addToCart } = useCart();
+  const navigate = useNavigate();
 
   const handleRemoveFromFavorites = async (productId: number) => {
     try {
@@ -48,11 +56,25 @@ const Favorites = () => {
             Tus productos favoritos guardados para acceso rápido
           </p>
           <div className="mt-4">
-            <Badge variant="secondary" className="bg-purple-100 text-purple-700">
-              {favorites.length} {favorites.length === 1 ? 'producto favorito' : 'productos favoritos'}
+            <Badge
+              variant="secondary"
+              className="bg-purple-100 text-purple-700"
+            >
+              {favorites.length}{" "}
+              {favorites.length === 1
+                ? "producto favorito"
+                : "productos favoritos"}
             </Badge>
           </div>
         </div>
+
+        <Button
+          variant="outline"
+          onClick={() => navigate("/dashboard")}
+          className="mb-6 border-2 border-pink-200 text-pink-700 bg-pink-50 hover:bg-pink-100 hover:border-pink-300 shadow-sm rounded-full px-5 py-2 font-semibold transition-all duration-200 flex items-center gap-2"
+        >
+          ← Volver al Dashboard
+        </Button>
 
         {favorites.length === 0 ? (
           <Card className="text-center py-16 border-purple-100">
@@ -62,10 +84,11 @@ const Favorites = () => {
                 Aún no tienes favoritos
               </h3>
               <p className="text-gray-500 mb-8 max-w-md mx-auto">
-                Explora nuestros productos y marca como favoritos los que más te gusten haciendo clic en el corazón
+                Explora nuestros productos y marca como favoritos los que más te
+                gusten haciendo clic en el corazón
               </p>
-              <Button 
-                onClick={() => window.location.href = '/products'}
+              <Button
+                onClick={() => (window.location.href = "/products")}
                 className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
               >
                 Explorar Productos
@@ -75,10 +98,16 @@ const Favorites = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {favorites.map((favorite) => (
-              <Card key={favorite.id} className="overflow-hidden hover:shadow-lg transition-all border-purple-100 hover:border-purple-200 group">
+              <Card
+                key={favorite.id}
+                className="overflow-hidden hover:shadow-lg transition-all border-purple-100 hover:border-purple-200 group"
+              >
                 <div className="aspect-square relative overflow-hidden">
                   <img
-                    src={favorite.imagen_url || 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400&h=400&fit=crop'}
+                    src={
+                      favorite.imagen_url ||
+                      "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400&h=400&fit=crop"
+                    }
                     alt={favorite.nombre}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                   />
@@ -87,7 +116,9 @@ const Favorites = () => {
                       variant="ghost"
                       size="sm"
                       className="bg-white/90 hover:bg-white text-red-500 hover:text-red-600 shadow-md"
-                      onClick={() => handleRemoveFromFavorites(favorite.producto_id)}
+                      onClick={() =>
+                        handleRemoveFromFavorites(favorite.producto_id)
+                      }
                     >
                       <HeartOff className="h-4 w-4" />
                     </Button>
@@ -99,7 +130,7 @@ const Favorites = () => {
                     </Badge>
                   </div>
                 </div>
-                
+
                 <CardHeader className="pb-2">
                   <div className="flex justify-between items-start">
                     <CardTitle className="text-lg text-purple-900 line-clamp-2 flex-1">
@@ -107,24 +138,28 @@ const Favorites = () => {
                     </CardTitle>
                   </div>
                   <div className="flex items-center justify-between">
-                    <Badge variant="secondary" className="bg-purple-100 text-purple-700 text-lg font-bold">
+                    <Badge
+                      variant="secondary"
+                      className="bg-purple-100 text-purple-700 text-lg font-bold"
+                    >
                       ${favorite.precio}
                     </Badge>
                     <div className="text-xs text-gray-500">
-                      Agregado el {new Date(favorite.createdAt!).toLocaleDateString()}
+                      Agregado el{" "}
+                      {new Date(favorite.createdAt!).toLocaleDateString()}
                     </div>
                   </div>
                 </CardHeader>
-                
+
                 <CardContent className="pt-0">
                   {favorite.descripcion && (
                     <CardDescription className="line-clamp-3 text-gray-600 mb-4">
                       {favorite.descripcion}
                     </CardDescription>
                   )}
-                  
+
                   <div className="flex space-x-2">
-                    <Button 
+                    <Button
                       onClick={() => handleAddToCart(favorite.producto_id)}
                       className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
                       size="sm"
@@ -135,7 +170,9 @@ const Favorites = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleRemoveFromFavorites(favorite.producto_id)}
+                      onClick={() =>
+                        handleRemoveFromFavorites(favorite.producto_id)
+                      }
                       className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
                     >
                       <HeartOff className="h-4 w-4" />
@@ -158,8 +195,9 @@ const Favorites = () => {
                     ¡Organiza tus favoritos!
                   </h3>
                   <p className="text-gray-700 text-sm">
-                    Puedes agregar productos a favoritos desde cualquier página de producto. 
-                    Tus favoritos se guardan automáticamente y puedes acceder a ellos en cualquier momento.
+                    Puedes agregar productos a favoritos desde cualquier página
+                    de producto. Tus favoritos se guardan automáticamente y
+                    puedes acceder a ellos en cualquier momento.
                   </p>
                 </div>
               </div>

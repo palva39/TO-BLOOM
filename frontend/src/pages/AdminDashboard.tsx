@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
+import { useAuth } from "../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 // Mock users and products for demo
 const mockUsers = [
@@ -33,6 +35,8 @@ const mockProducts = [
 ];
 
 export default function AdminDashboard() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [selectedProduct, setSelectedProduct] = useState<string>("");
   const [recommendMsg, setRecommendMsg] = useState("");
@@ -43,13 +47,18 @@ export default function AdminDashboard() {
     precio: "",
   });
 
-  // Simulate admin check (replace with real auth check)
-  const isAdmin = true;
+  // Real admin check
+  const isAdmin = user?.rol === "admin";
 
-  if (!isAdmin) return <div>Access denied. Admins only.</div>;
+  if (!isAdmin)
+    return (
+      <div className="text-center text-red-500 py-10 font-bold">
+        Acceso denegado. Solo para administradores.
+      </div>
+    );
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
+    <div className="max-w-6xl mx-auto p-6 relative min-h-screen">
       <h1 className="text-3xl font-bold mb-6 text-purple-800">
         Admin Dashboard
       </h1>
@@ -196,6 +205,19 @@ export default function AdminDashboard() {
             )}
           </div>
         </div>
+      </div>
+      {/* Fixed logout button always visible */}
+      <div className="fixed bottom-6 left-6 z-50 pointer-events-auto">
+        <Button
+          variant="outline"
+          onClick={async () => {
+            await logout();
+            navigate("/");
+          }}
+          className="border-2 border-purple-200 text-purple-700 bg-white hover:bg-purple-50 shadow rounded-full px-6 py-3 font-semibold flex items-center gap-2"
+        >
+          Cerrar Sesión
+        </Button>
       </div>
     </div>
   );

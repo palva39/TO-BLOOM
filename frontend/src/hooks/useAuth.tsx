@@ -11,7 +11,11 @@ import { toast } from "sonner";
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (
+    email: string,
+    password: string,
+    navigate?: (path: string) => void
+  ) => Promise<void>;
   register: (
     email: string,
     username: string,
@@ -55,16 +59,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const login = async (email: string, password: string) => {
+  const login = async (
+    email: string,
+    password: string,
+    navigate?: (path: string) => void
+  ) => {
     try {
       const response = await api.post("/auth/login", { email, password });
       setUser(response.data.user);
       toast.success("Login successful!");
-      // Redirect admin to /admin, others to /dashboard
-      if (response.data.user.rol === "admin") {
-        window.location.href = "/admin";
+      // Use navigate if provided, else fallback
+      if (navigate) {
+        if (response.data.user.rol === "admin") {
+          navigate("/admin");
+        } else {
+          navigate("/dashboard");
+        }
       } else {
-        window.location.href = "/dashboard";
+        if (response.data.user.rol === "admin") {
+          window.location.href = "/admin";
+        } else {
+          window.location.href = "/dashboard";
+        }
       }
     } catch (error: any) {
       const message = error.response?.data?.error || "Login failed";

@@ -1,11 +1,18 @@
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useCart } from '@/hooks/useCart';
-import { ShoppingCart, Plus, Minus, Trash2, ArrowLeft } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useCart } from "@/hooks/useCart";
+import { ShoppingCart, Plus, Minus, Trash2, ArrowLeft } from "lucide-react";
 
 const Cart = () => {
-  const { cart, items, updateItemQuantity, removeFromCart, clearCart, loading } = useCart();
+  const {
+    cart,
+    items,
+    updateItemQuantity,
+    removeFromCart,
+    clearCart,
+    loading,
+  } = useCart();
   const navigate = useNavigate();
 
   const handleQuantityChange = async (itemId: number, newQuantity: number) => {
@@ -18,7 +25,9 @@ const Cart = () => {
 
   const handleCheckout = () => {
     // Simulate checkout process
-    alert('¡Compra simulada exitosa! En una implementación real, aquí se integraría con una pasarela de pago.');
+    alert(
+      "¡Compra simulada exitosa! En una implementación real, aquí se integraría con una pasarela de pago."
+    );
     clearCart();
   };
 
@@ -39,9 +48,9 @@ const Cart = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center">
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate('/products')}
+            <Button
+              variant="ghost"
+              onClick={() => navigate("/products")}
               className="mr-4 text-purple-600 hover:text-purple-700 hover:bg-purple-50"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -52,13 +61,14 @@ const Cart = () => {
                 Mi Carrito
               </h1>
               <p className="text-gray-600 mt-2">
-                {items.length} {items.length === 1 ? 'producto' : 'productos'} en tu carrito
+                {items.length} {items.length === 1 ? "producto" : "productos"}{" "}
+                en tu carrito
               </p>
             </div>
           </div>
           {items.length > 0 && (
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={clearCart}
               className="text-red-600 border-red-300 hover:bg-red-50"
             >
@@ -68,16 +78,26 @@ const Cart = () => {
           )}
         </div>
 
+        <Button
+          variant="outline"
+          onClick={() => navigate("/dashboard")}
+          className="mb-6 border-2 border-pink-200 text-pink-700 bg-pink-50 hover:bg-pink-100 hover:border-pink-300 shadow-sm rounded-full px-5 py-2 font-semibold transition-all duration-200 flex items-center gap-2"
+        >
+          ← Volver al Dashboard
+        </Button>
+
         {items.length === 0 ? (
           <Card className="text-center py-12 border-purple-100">
             <CardContent>
               <ShoppingCart className="h-24 w-24 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-600 mb-2">Tu carrito está vacío</h3>
+              <h3 className="text-xl font-semibold text-gray-600 mb-2">
+                Tu carrito está vacío
+              </h3>
               <p className="text-gray-500 mb-6">
                 Explora nuestros productos y agrega los que más te gusten
               </p>
-              <Button 
-                onClick={() => navigate('/products')}
+              <Button
+                onClick={() => navigate("/products")}
                 className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
               >
                 Explorar Productos
@@ -89,27 +109,41 @@ const Cart = () => {
             {/* Cart Items */}
             <div className="lg:col-span-2 space-y-4">
               {items.map((item) => (
-                <Card key={item.id} className="border-purple-100 hover:shadow-md transition-shadow">
+                <Card
+                  key={item.id}
+                  className="border-purple-100 hover:shadow-md transition-shadow"
+                >
                   <CardContent className="p-6">
                     <div className="flex items-center space-x-4">
                       <img
-                        src={item.imagen_url || 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=150&h=150&fit=crop'}
+                        src={
+                          item.imagen_url ||
+                          "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=150&h=150&fit=crop"
+                        }
                         alt={item.nombre}
                         className="w-20 h-20 rounded-lg object-cover"
                       />
                       <div className="flex-1">
-                        <h3 className="font-semibold text-purple-900">{item.nombre}</h3>
+                        <h3 className="font-semibold text-purple-900">
+                          {item.nombre}
+                        </h3>
                         {item.descripcion && (
-                          <p className="text-sm text-gray-600 mt-1 line-clamp-2">{item.descripcion}</p>
+                          <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                            {item.descripcion}
+                          </p>
                         )}
-                        <p className="font-bold text-purple-600 mt-2">${item.precio}</p>
+                        <p className="font-bold text-purple-600 mt-2">
+                          ${item.precio}
+                        </p>
                       </div>
                       <div className="flex items-center space-x-3">
                         <div className="flex items-center border border-purple-200 rounded-lg">
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleQuantityChange(item.id, item.cantidad - 1)}
+                            onClick={() =>
+                              handleQuantityChange(item.id, item.cantidad - 1)
+                            }
                             className="h-8 w-8 p-0 hover:bg-purple-50"
                           >
                             <Minus className="h-3 w-3" />
@@ -120,7 +154,9 @@ const Cart = () => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleQuantityChange(item.id, item.cantidad + 1)}
+                            onClick={() =>
+                              handleQuantityChange(item.id, item.cantidad + 1)
+                            }
                             className="h-8 w-8 p-0 hover:bg-purple-50"
                           >
                             <Plus className="h-3 w-3" />
@@ -145,13 +181,15 @@ const Cart = () => {
             <div className="lg:col-span-1">
               <Card className="border-purple-100 sticky top-8">
                 <CardHeader>
-                  <CardTitle className="text-purple-900">Resumen del Pedido</CardTitle>
+                  <CardTitle className="text-purple-900">
+                    Resumen del Pedido
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span>Subtotal</span>
-                      <span>${cart?.total?.toFixed(2) || '0.00'}</span>
+                      <span>${cart?.total?.toFixed(2) || "0.00"}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span>Envío</span>
@@ -160,19 +198,21 @@ const Cart = () => {
                     <div className="border-t border-purple-100 pt-2">
                       <div className="flex justify-between font-semibold text-lg">
                         <span>Total</span>
-                        <span className="text-purple-600">${cart?.total?.toFixed(2) || '0.00'}</span>
+                        <span className="text-purple-600">
+                          ${cart?.total?.toFixed(2) || "0.00"}
+                        </span>
                       </div>
                     </div>
                   </div>
-                  
-                  <Button 
+
+                  <Button
                     onClick={handleCheckout}
                     className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
                     size="lg"
                   >
                     Proceder al Pago
                   </Button>
-                  
+
                   <p className="text-xs text-gray-500 text-center">
                     Esta es una demostración. No se procesarán pagos reales.
                   </p>

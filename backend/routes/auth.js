@@ -86,22 +86,20 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-
+    console.log("[DEBUG] Login attempt:", email);
     // Find user
     const user = db.user.findUnique({
       where: { email },
     });
-
+    console.log("[DEBUG] User found:", user);
     if (!user) {
       return res.status(400).json({ error: "Invalid credentials" });
     }
-
     // Check password
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
       return res.status(400).json({ error: "Invalid credentials" });
     }
-
     // Generate JWT token
     const token = jwt.sign(
       {
@@ -113,7 +111,6 @@ router.post("/login", async (req, res) => {
       JWT_SECRET,
       { expiresIn: "7d" }
     );
-
     // Set cookie
     res.cookie("token", token, {
       httpOnly: true,
@@ -121,7 +118,6 @@ router.post("/login", async (req, res) => {
       sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
-
     res.json({
       message: "Login successful",
       user: {
@@ -140,14 +136,16 @@ router.post("/login", async (req, res) => {
 // Get current user
 router.get("/me", authenticateToken, async (req, res) => {
   try {
+    console.log("[DEBUG] /me for userId:", req.user.userId);
     const user = db.user.findUnique({
       where: { id: req.user.userId },
     });
-
+    console.log("[DEBUG] /me user found:", user);
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
-
+    // Debug: log user role
+    console.log("[DEBUG] /me user role:", user.rol);
     res.json({
       user: {
         id: user.id,
@@ -159,11 +157,10 @@ router.get("/me", authenticateToken, async (req, res) => {
         description: user.description,
         preferencias: user.preferencias,
         createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
       },
     });
   } catch (error) {
-    console.error("Get user error:", error);
+    console.error("/me error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });

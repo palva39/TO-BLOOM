@@ -30,14 +30,25 @@ export default function UserProfile() {
 
   return (
     <div className="max-w-lg mx-auto p-8 bg-white rounded-xl shadow-lg mt-10">
+      <Button
+        variant="outline"
+        onClick={() => navigate("/dashboard")}
+        className="mb-6 border-2 border-pink-200 text-pink-700 bg-pink-50 hover:bg-pink-100 hover:border-pink-300 shadow-sm rounded-full px-5 py-2 font-semibold transition-all duration-200 flex items-center gap-2"
+      >
+        ← Volver al Dashboard
+      </Button>
       <h1 className="text-3xl font-bold mb-6 text-center text-pink-600">
         Mi Perfil
       </h1>
       <div className="flex flex-col items-center mb-8">
         <img
-          src={profile.avatar_url || "/default-female-avatar.png"}
+          src={
+            profile.avatar_url && profile.avatar_url.trim() !== ""
+              ? profile.avatar_url
+              : "/avatar.jpg"
+          }
           alt="avatar"
-          className="w-32 h-32 rounded-full object-cover border-4 border-pink-200 shadow-lg ring-4 ring-pink-100 hover:ring-pink-300 transition duration-200 mb-3"
+          className="w-32 h-32 rounded-full object-cover object-center scale-110 border-4 border-pink-200 shadow-lg ring-4 ring-pink-100 hover:ring-pink-300 transition duration-200 mb-3"
         />
         <Button
           onClick={() => navigate("/profile")}

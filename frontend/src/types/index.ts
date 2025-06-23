@@ -7,6 +7,7 @@ export interface User {
   rol?: string;
   preferencias?: string;
   createdAt?: string;
+  description?: string;
 }
 
 export interface Product {

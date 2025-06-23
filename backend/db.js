@@ -14,6 +14,7 @@ db.exec(`
     password TEXT NOT NULL,
     avatar_url TEXT,
     bio TEXT,
+    description TEXT,
     rol TEXT DEFAULT 'user',
     preferencias TEXT DEFAULT '{}',
     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -300,6 +301,19 @@ module.exports = {
         }
       }
       return null;
+    },
+    update: ({ where, data }) => {
+      // Patch: allow updating avatar_url, bio, description, preferencias
+      const current = findUserById.get(where.id);
+      if (!current) return null;
+      const avatar_url = data.avatar_url ?? current.avatar_url;
+      const bio = data.bio ?? current.bio;
+      const description = data.description ?? current.description;
+      const preferencias = data.preferencias ?? current.preferencias;
+      db.prepare(
+        `UPDATE User SET avatar_url = ?, bio = ?, description = ?, preferencias = ?, updatedAt = CURRENT_TIMESTAMP WHERE id = ?`
+      ).run(avatar_url, bio, description, preferencias, where.id);
+      return { ...current, avatar_url, bio, description, preferencias };
     },
   },
   product: {

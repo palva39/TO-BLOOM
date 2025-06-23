@@ -1,12 +1,22 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User } from '@/types';
-import api from '@/lib/api';
-import { toast } from 'sonner';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
+import { User } from "@/types";
+import api from "@/lib/api";
+import { toast } from "sonner";
 
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, username: string, password: string) => Promise<void>;
+  register: (
+    email: string,
+    username: string,
+    password: string
+  ) => Promise<void>;
   logout: () => Promise<void>;
   loading: boolean;
 }
@@ -16,7 +26,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
@@ -35,7 +45,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const checkAuth = async () => {
     try {
-      const response = await api.get('/auth/me');
+      const response = await api.get("/auth/me");
       setUser(response.data.user);
     } catch (error) {
       // User not authenticated
@@ -47,23 +57,38 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await api.post('/auth/login', { email, password });
+      const response = await api.post("/auth/login", { email, password });
       setUser(response.data.user);
-      toast.success('Login successful!');
+      toast.success("Login successful!");
+      // Redirect admin to /admin, others to /dashboard
+      if (response.data.user.rol === "admin") {
+        window.location.href = "/admin";
+      } else {
+        window.location.href = "/dashboard";
+      }
     } catch (error: any) {
-      const message = error.response?.data?.error || 'Login failed';
+      const message = error.response?.data?.error || "Login failed";
       toast.error(message);
       throw error;
     }
   };
 
-  const register = async (email: string, username: string, password: string) => {
+  const register = async (
+    email: string,
+    username: string,
+    password: string
+  ) => {
     try {
-      const response = await api.post('/auth/register', { email, username, password });
+      const response = await api.post("/auth/register", {
+        email,
+        username,
+        password,
+      });
       setUser(response.data.user);
-      toast.success('Registration successful!');
+      toast.success("Registration successful!");
+      window.location.href = "/profile";
     } catch (error: any) {
-      const message = error.response?.data?.error || 'Registration failed';
+      const message = error.response?.data?.error || "Registration failed";
       toast.error(message);
       throw error;
     }
@@ -71,11 +96,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = async () => {
     try {
-      await api.post('/auth/logout');
+      await api.post("/auth/logout");
       setUser(null);
-      toast.success('Logged out successfully');
+      toast.success("Logged out successfully");
     } catch (error: any) {
-      toast.error('Logout failed');
+      toast.error("Logout failed");
       throw error;
     }
   };

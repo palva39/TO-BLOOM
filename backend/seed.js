@@ -24,11 +24,8 @@ async function seedData() {
         email: "admin@florecer.com",
         username: "admin",
         password: adminPassword,
+        rol: "admin",
       });
-
-      // Update user role to admin
-      const stmt = rawDb.prepare("UPDATE User SET rol = ? WHERE email = ?");
-      stmt.run("admin", "admin@florecer.com");
 
       console.log("✅ Admin user created: admin@florecer.com / admin123");
     } else {
